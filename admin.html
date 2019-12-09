@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Welcome！</title>
+    <title>Administration Dashboard</title>
     <link href="https://cdn.bootcss.com/semantic-ui/2.4.1/semantic.min.css" rel="stylesheet">
     <script src="//cdn.bootcss.com/jquery/3.1.1/jquery.js"></script>
     <script src="https://cdn.bootcss.com/semantic-ui/2.4.1/semantic.min.js"></script>
@@ -19,9 +19,14 @@
 <body>
 
 <div class="ui top fixed menu">
-    <a class="item">主页</a>
+    <div class="item">
+        <i class="th list icon"></i>
+        仪表盘
+    </div>
+    <a class="item"> 主页 </a>
+    <a class="item"> 设置 </a>
     <div class="right menu">
-        <a class="item">账号管理</a>
+        <a class="item">账号管理<div class="ui teal label"> {用户名} </div></a>
     </div>
 </div>
 <div class="box"></div>
@@ -32,24 +37,52 @@
     <div class="ui raised very padded segment">
         <h1 class="bt">通知</h1>
         <div class="ui divider"></div>
+        <div class="ui success message">
+            <div class="header">建议本处内容ajax即时获取</div>
+            <p>如果需要前端配合（可以做加载动画响应式）请联系雪落月夜，我可以提供相应的semantic内置js代码。</p>
+        </div>
         <div class="box"></div>
-        <div class="ui floating message">
-            <div class="header">第一条通知</div>
-            <p>通知内容</p>
-        </div>
-        <div class="ui floating message">
-            <div class="header">第二条通知</div>
-            <p>通知内容</p>
-        </div>
-        <div class="ui floating message">
-            <div class="header">第三条通知</div>
-            <p>通知内容</p>
+        <div class="ui divided items">
+            <div class="item">
+                <div class="content">
+                    <a class="header">第一条通知</a>
+                    <div class="meta">
+                        <span>通知日期</span>
+                    </div>
+                    <div class="description">
+                        <p>通知的详细内容</p>
+                        <p></p>
+                    </div>
+                    <div class="extra">
+                        备注信息
+                    </div>
+                </div>
+            </div>
+            <div class="item">
+                <div class="content">
+                    <a class="header">第二条通知</a>
+                    <div class="meta">
+                        <span>通知日期</span>
+                    </div>
+                    <div class="description">
+                        <p>通知的详细内容</p>
+                        <p></p>
+                    </div>
+                    <div class="extra">
+                        备注信息
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
     <div class="box"></div>
     <div class="ui raised very padded segment">
         <h1 class="bt">今日</h1>
         <div class="ui divider"></div>
+        <div class="ui success message">
+            <div class="header">该处数据不保证实时更新</div>
+            <p>具体数据请点击活动管理查看。</p>
+        </div>
         <div class="box"></div>
         <div class="ui stackable three column grid">
             <div class="column">
