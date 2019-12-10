@@ -7,44 +7,61 @@
     <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/fomantic-ui@2.8.2/dist/semantic.min.css">
     <script src="https://cdn.jsdelivr.net/npm/fomantic-ui@2.8.2/dist/semantic.min.js"></script>
     <style>
+        body {
+            font-family: "Apple Symbols";
+            color:#11131a;
+        }
+
         .box {
             height: 10px;
         }
 
         .bt {
-            text-shadow: 1px 1px 1px gray;
+            text-shadow: 1px 1px 1px #269093;
         }
     </style>
 </head>
 <body>
 
-<div class="ui top fixed menu">
-    <div class="item">
-        <i class="setting icon"></i>
-        管理活动
-    </div>
-    <a class="item"> 主页 </a>
-    <a class="item"> 设置 </a>
-    <div class="right menu">
-        <a class="item">账号管理
-            <div class="ui teal label"> {用户名}</div>
-        </a>
-    </div>
-</div>
-<div class="box"></div>
-<div class="box"></div>
-<div class="box"></div>
 <div class="ui container">
+    <div class="ui top fixed borderless massive menu">
+        <div class="item">
+            <i class="teal setting icon"></i>
+            <strong>新增活动</strong>
+        </div>
+        <a class="item"> 主页 </a>
+        <a class="item"> 设置 </a>
+        <div class="right menu">
+            <a class="item">账号管理
+                <div class="ui teal label"> {用户名}</div>
+            </a>
+        </div>
+    </div>
+    <div class="box"></div>
+    <div class="box"></div>
+    <div class="box"></div>
+    <div class="box"></div>
     <div class="box"></div>
     <div class="ui raised segment">
         <div class="ui breadcrumb">
             <a class="section" href="admin.html">仪表盘</a>
-            <div class="divider">/</div>
+            <i class="teal right chevron icon divider"></i>
             <a class="section">新增活动</a>
         </div>
     </div>
-    <div class="ui raised very padded segment">
-        <h1 class="bt">新增活动</h1>
+    <div class="ui segments">
+        <div class="ui teal inverted raised segment" style="color:white">
+            <h3><i class="info icon"></i>我应该如何填写表单？</h3>
+        </div>
+        <div class="ui teal raised segment">
+            <p>1.balabalabalabal</p>
+            <p>1.balabalabalabal</p>
+            <p>1.balabalabalabal</p>
+
+        </div>
+    </div>
+    <div class="ui teal raised very padded segment">
+        <h1 style="color:#269093">新增活动</h1>
         <div class="ui divider"></div>
         <div class="box"></div>
         <form class="ui form">
@@ -110,7 +127,7 @@
                 </div>
             </div>
             <div class="box"></div>
-            <button class="ui right floated animated fade positive basic button" tabindex="0" type="submit">
+            <button class="ui right floated animated fade teal basic button" tabindex="0" type="submit">
                 <div class="visible content">提交</div>
                 <div class="hidden content">
                     <i class="right arrow icon"></i>
