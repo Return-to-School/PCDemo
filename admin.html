@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <title>Administration Dashboard</title>
-    <link href="https://cdn.bootcss.com/semantic-ui/2.4.1/semantic.min.css" rel="stylesheet">
-    <script src="//cdn.bootcss.com/jquery/3.1.1/jquery.js"></script>
-    <script src="https://cdn.bootcss.com/semantic-ui/2.4.1/semantic.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/fomantic-ui@2.8.2/dist/semantic.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/fomantic-ui@2.8.2/dist/semantic.min.js"></script>
     <style>
         .box {
             height: 10px;
@@ -172,7 +172,34 @@
         </div>
     </div>
     <div class="box"></div>
+    <div class="ui center aligned very padded segment" style="background-color: #f9f9ff;border-color: #f9f9ff">
+        <div class="ui inline">
+            <h1 class="ui teal massive header">
+                需要帮助?
+            </h1>
+        </div>
+        <h3 class="ui medium header" style="color:darkgrey">请联系网站管理人员，或查阅相关提示</h3>
+        <div class="box"></div>
+        <div class="large ui teal basic button" onclick="gettoast()"><strong>获取提示</strong></div>
+    </div>
+    <div class="box"></div>
+    <div class="ui divider"></div>
+    <div class="center aligned">
+        <div class="ui center aligned big header" style="color:lightgrey"><strong>
+            <div style="color:#2ecc72;display:inline-block">X</div>Poi
+        </strong></div>
+    </div>
+    <div class="box"></div>
 </div>
+<script>
+    function gettoast() {
+        $('body').toast({
+            title: '抱歉，暂时无法处理您的请求',
+            message: '由于文档仍在建设，我们暂时不能回应您的请求。',
+            showProgress: 'bottom'
+        });
+    }
+</script>
 
 </body>
 </html>
