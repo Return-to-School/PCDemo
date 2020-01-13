@@ -1,3 +1,22 @@
-# PC管理端 #
-## 项目说明 ##
-1. 前端页面使用Semantic-UI框架开发
+# PC端页面
+
+> 基于Nuxt.js
+
+## Build Setup
+
+``` bash
+# install dependencies
+$ npm run install
+
+# serve with hot reload at localhost:3000
+$ npm run dev
+
+# build for production and launch server
+$ npm run build
+$ npm run start
+
+# generate static project
+$ npm run generate
+```
+
+For detailed explanation on how things work, check out [Nuxt.js docs](https://nuxtjs.org).
