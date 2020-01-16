@@ -10,7 +10,7 @@
         <el-divider></el-divider>
       </el-col>
     </el-row>
-    <el-row type="flex" class="row-bg" justify="center" gutter="20">
+    <el-row type="flex" class="row-bg" justify="center" :gutter="20">
       <el-col :span="4">
         <el-menu default-active="1">
           <el-menu-item index="1">
@@ -57,8 +57,9 @@
       handleClick(row) {
         console.log(row);
       },
-      goBack(){
-        this.$router.push({path:'/dashboard'});
+      goBack() {
+        var urls = this.$route.query.url;
+        this.$router.push({path: '/' + urls});
       }
     },
     head() {
@@ -67,7 +68,7 @@
           {src: 'https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js'}
         ],
         style: [],
-        title:'活动列表'
+        title: '活动列表'
       }
     },
     data() {

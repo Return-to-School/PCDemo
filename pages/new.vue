@@ -82,7 +82,8 @@
         console.log(row);
       },
       goBack() {
-        this.$router.push({path: '/dashboard'});
+        var urls = this.$route.query.url;
+        this.$router.push({path: '/' + urls});
       },
       submitForm(formName) {
         this.$refs[formName].validate((valid) => {

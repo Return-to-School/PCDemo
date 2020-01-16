@@ -99,7 +99,7 @@
         <div class="box"></div>
         <div class="ui stackable three column grid">
           <div class="column">
-            <a class="ui link raised card" href="/list">
+            <a class="ui link raised card" href="/list?url=dashboard">
               <div class="content">
                 <div class="box"></div>
                 <h2 class="center aligned header">活动管理</h2>
@@ -110,7 +110,7 @@
             </a>
           </div>
           <div class="column">
-            <a class="ui link raised card" href="/new">
+            <a class="ui link raised card" href="/new?url=dashboard">
               <div class="content">
                 <div class="box"></div>
                 <h2 class="center aligned header">新增活动</h2>
@@ -121,7 +121,7 @@
             </a>
           </div>
           <div class="column">
-            <a class="ui link raised card" href="/users">
+            <a class="ui link raised card" href="/print">
               <div class="content">
                 <div class="box"></div>
                 <h2 class="center aligned header">人员导出</h2>

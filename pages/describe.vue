@@ -10,7 +10,7 @@
         <el-divider></el-divider>
       </el-col>
     </el-row>
-    <el-row type="flex" class="row-bg" justify="center" gutter="20">
+    <el-row type="flex" class="row-bg" justify="center" :gutter="20">
       <el-col :span="4">
         <el-card shadow="hover">
           <div slot="header" class="clearfix">
@@ -33,7 +33,7 @@
             活动详情
             <div style="float:right">
               <el-button-group>
-                <el-button type="primary">修改活动</el-button>
+                <el-button type="primary" @click="changeActivity()">修改活动</el-button>
                 <el-button type="primary" @click="apply=true">人员审核</el-button>
                 <el-button type="primary" @click="complete=true">反馈考评</el-button>
               </el-button-group>
@@ -101,17 +101,20 @@
             <el-row type="flex" class="row-bg" justify="space-between">
               <el-col :span="6">
                 <div class="grid-content">
-                  总报名人数：<el-tag type="info">200</el-tag>
+                  总报名人数：
+                  <el-tag type="info">200</el-tag>
                 </div>
               </el-col>
               <el-col :span="6">
                 <div class="grid-content">
-                  通过人数：<el-tag type="success">100</el-tag>
+                  通过人数：
+                  <el-tag type="success">100</el-tag>
                 </div>
               </el-col>
               <el-col :span="6">
                 <div class="grid-content">
-                  未处理人数：<el-tag type="warning">100</el-tag>
+                  未处理人数：
+                  <el-tag type="warning">100</el-tag>
                 </div>
               </el-col>
             </el-row>
@@ -144,7 +147,7 @@
             </el-table-column>
           </el-table>
         </el-dialog>
-        <el-dialog title="人员审核" :visible.sync="complete">
+        <el-dialog title="反馈考评" :visible.sync="complete">
           <el-table border :data="applyData" style="width:100%" max-height="400">
             <el-table-column fixed prop="id" label="申请编号">
             </el-table-column>
@@ -176,6 +179,9 @@
       },
       goBack() {
         this.$router.push({path: '/list'});
+      },
+      changeActivity() {
+        this.$router.push({path: '/new?url=describe'});
       }
     },
     head() {
@@ -184,7 +190,7 @@
           {src: 'https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js'}
         ],
         style: [],
-        title:'活动详情'
+        title: '活动详情'
       }
     },
     data() {
@@ -223,7 +229,7 @@
             no: '6105119151',
             status: 0
           }],
-        completeData:[{
+        completeData: [{
           id: '#00001',
           name: '张三',
           major: '电子信息专业',
@@ -231,12 +237,12 @@
           no: '6105119151',
         },
           {
-          id: '#00002',
-          name: '李四',
-          major: '电子信息专业',
-          class: '191班',
-          no: '6105119151',
-        },
+            id: '#00002',
+            name: '李四',
+            major: '电子信息专业',
+            class: '191班',
+            no: '6105119151',
+          },
           {
             id: '#00003',
             name: '王五',
