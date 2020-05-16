@@ -14,18 +14,18 @@
                   <form class="ui form">
                     <div class="field">
                       <div class="ui left icon input">
-                        <input type="text" name="username" placeholder="用户名">
+                        <input type="text" name="account" placeholder="用户名" id="account">
                         <i class="ui user icon"></i>
                       </div>
                     </div>
                     <div class="field">
                       <div class="ui left icon input">
-                        <input type="password" name="password" placeholder="密码">
+                        <input type="password" name="password" placeholder="密码" id="password">
                         <i class="ui keyboard icon"></i>
                       </div>
                     </div>
                     <br>
-                    <button class="ui teal fluid button" type="submit">登入</button>
+                    <div class="ui teal fluid submit button" @click="onSubmit">登入</div>
                   </form>
                 </div>
               </div>
@@ -39,7 +39,69 @@
 
 <script>
   export default {
-    methods: {},
+    methods: {
+      onSubmit() {
+        $.fn.api.settings.api = {
+          'login': 'http://101.37.173.57:8080/user/verification'
+        };
+        $('.ui.form').api({
+          action: 'login',
+          method: 'POST',
+          on: 'now',
+          beforeXHR: function (xhr) {
+            xhr.setRequestHeader('content-type', 'application/json');
+            return xhr;
+          },
+          data: JSON.stringify({
+            "userId": $("#account").val(),
+            "password": $("#password").val()
+          }),
+          //serializeForm: true,
+          dataType: 'json',
+          beforeSent: function (settings) {
+            $('.ui.button').addClass("elastic loading");
+            console.log(settings.data);
+            return settings;
+          },
+          onSuccess: function (response, element, xhr) {
+            $('.ui.button').removeClass("elastic loading");
+            if (response.success) {
+              //登录成功
+              const store = window.sessionStorage;
+              store.clear();//清空所有之前的数据
+              console.log(response.UserId);
+              store.setItem('user', response.UserId);
+              $('body').toast({
+                class: 'success',
+                message: '登录成功！'
+              });
+              this.$router.push({path: '/dashboard'});
+            }else{
+              $('body').toast({
+                  class: 'error',
+                  message: '登录失败，原因：'+response.msg
+                });
+            }
+          },
+          onFailure: function (response, element, xhr) {
+            $('.ui.button').removeClass("elastic loading");
+            if (!response.success) {
+              $('body').toast({
+                class: 'error',
+                message: '登录失败，原因：'+response.msg
+              });
+            }
+          },
+          onError: function (response, element, xhr) {
+            $('.ui.button').removeClass("elastic loading");
+            $('body').toast({
+              class: 'error',
+              message: '服务器请求错误！'
+            });
+          }
+        });
+      }
+    },
     head() {
       return {
         script: [

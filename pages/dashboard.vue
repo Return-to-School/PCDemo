@@ -4,7 +4,7 @@
       :default-active="indexSwitch"
       class="el-menu-demo"
       mode="horizontal"
-      @select="handleSelect"
+      @select="handleRedirect"
       background-color="#545c64"
       text-color="#fff"
       active-text-color="#ffd04b">
@@ -12,16 +12,16 @@
         <i class="el-icon-odometer"></i>
         仪表盘
       </el-menu-item>
-      <el-menu-item index="2">账号管理</el-menu-item>
+      <el-menu-item index="4">账号管理</el-menu-item>
     </el-menu>
     <el-row type="flex" class="row-bg" justify="center">
       <el-col :span="14">
         <div class="grid-content">
-          <h3 class="title">
-            上午好，
+          <h3 class="title f">
+
           </h3>
           <div class="subtitle">
-            您可以由本页面进入所有功能。
+            请选择一个功能进入。
           </div>
         </div>
       </el-col>
@@ -56,11 +56,8 @@
           <div slot="header" class="clearfix">
             <span><strong>通知</strong></span>
           </div>
-          <el-alert type="error" title="这是一条重要通知"></el-alert>
+          <el-alert type="success" title="暂时没有新内容。"></el-alert>
           <el-divider></el-divider>
-          <el-alert type="error" title="这是一条重要通知"></el-alert>
-          <el-divider></el-divider>
-          <el-alert type="error" title="这是一条重要通知"></el-alert>
         </el-card>
       </el-col>
     </el-row>
@@ -75,6 +72,8 @@
       </el-col>
     </el-row>
     <el-divider></el-divider>
+    <el-button v-trigger @click="autoClick">
+    </el-button>
   </div>
 </template>
 
@@ -84,10 +83,26 @@
       handleClick(row) {
         console.log(row);
       },
-      handleRedirect(index,path){
-        if(index==1) this.$router.push({path: '/list?url=dashboard'});
-        else if(index==2) this.$router.push({path: '/new?url=dashboard'});
+      handleRedirect(index, path) {
+        if (index == 1) this.$router.push({path: '/list?url=dashboard'});
+        else if (index == 2) this.$router.push({path: '/new?url=dashboard&action=new&sign='});
+        else if (index == 4) this.$router.push({path: '/manage?url=dashboard'});
         else this.$router.push({path: '/print'});
+      },
+      autoClick() {
+        let timeNow = new Date();
+        let hours = timeNow.getHours();
+        let text = '';
+        if (hours >= 0 && hours <= 10) {
+          text = '早上好，';
+        } else if (hours > 10 && hours <= 14) {
+          text = '中午好，';
+        } else if (hours > 14 && hours <= 18) {
+          text = '下午好，';
+        } else if (hours > 18 && hours <= 24) {
+          text = '晚上好，';
+        }
+        $('.f').text(text);
       }
     },
     head() {
@@ -99,9 +114,16 @@
         title: '仪表盘'
       }
     },
+    directives: {
+      trigger: {
+        inserted(el, b) {
+          el.click();
+        }
+      }
+    },
     data() {
       return {
-        indexSwitch:'1'
+        indexSwitch: '1'
       };
     },
   }

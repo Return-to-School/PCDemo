@@ -32,12 +32,16 @@
         </el-alert>
         <div class="box"></div>
         <el-card shadow="hover">
-          <el-table border :data="tableData" style="width:100%" max-height="500">
-            <el-table-column fixed prop="id" label="活动编号">
+          <el-table border :data="tableData" style="width:100%" max-height="500" v-loading="loadings">
+            <el-table-column fixed prop="activityId" label="活动编号">
             </el-table-column>
             <el-table-column prop="name" label="活动名称">
             </el-table-column>
-            <el-table-column prop="date" label="活动日期">
+            <el-table-column prop="applyStartTime" label="活动开始日期">
+            </el-table-column>
+            <el-table-column prop="applyEndTime" label="活动结束日期">
+            </el-table-column>
+            <el-table-column prop="location" label="活动区域">
             </el-table-column>
             <el-table-column label="操作">
               <template slot-scope="scope">
@@ -45,6 +49,11 @@
               </template>
             </el-table-column>
           </el-table>
+          <div style="margin-top:20px">
+            <el-pagination background layout="total, prev, pager, next" :total="tableLength"
+                           @current-change="handleCurrentChange">
+            </el-pagination>
+          </div>
         </el-card>
       </el-col>
     </el-row>
@@ -52,14 +61,54 @@
 </template>
 
 <script>
+  import axios from 'axios'
+
   export default {
+    asyncData() { //进入页面前的预加载
+      const myaxios = axios.create({
+        baseURL: "http://101.37.173.57:8080/",
+        timeout: 5000  //设置5秒的超时
+      });
+      myaxios.interceptors.request.use(function (config) {
+        return config;
+      });
+      return myaxios.get('activity/all?currPage=1&pageSize=10').then((res) => {
+        //if(res.status==1) 保留正确性测试
+        console.log("yes");
+        return {tableData: res.data.result, tableLength: res.data.totalCount, loadings: false}
+      }).catch((e) => {
+        //this.$message.error('请求数据失败！请刷新页面重试');
+        console.log("请求错误！");
+        return {loadings: false}
+      })
+    },
     methods: {
       handleClick(row) {
+        const store = window.sessionStorage;//设置session缓存
+        //if (store.getItem('list_' + row.id) == null)
+        store.setItem('list_' + row.activityId, JSON.stringify(row));//将用户指定的list对象放入session并保持最新
         console.log(row);
+        this.$router.push({path: '/describe?id=' + row.activityId});
       },
       goBack() {
         var urls = this.$route.query.url;
         this.$router.push({path: '/' + urls});
+      },
+      handleCurrentChange(val) {
+        const myaxios = axios.create({
+          baseURL: "http://101.37.173.57:8080/",
+          timeout: 5000,
+          headers: {
+            //传入头数据
+          }
+        });
+        myaxios.get("activity/all?currPage=" + val + "&pageSize=10").then((res) => {
+          const store = window.sessionStorage;//设置session缓存
+          this.tableData = res.data.result;//设置分页数据
+        }).catch((e) => {
+          this.$message.error('请求数据失败！请刷新页面重试');
+          this.tableData = "";
+        });
       }
     },
     head() {
@@ -73,77 +122,9 @@
     },
     data() {
       return {
-        tableData: [{
-          id: '#00001',
-          name: '第一个活动',
-          date: '2020-01-20'
-        },
-          {
-            id: '#00002',
-            name: '第二个活动',
-            date: '2020-01-21'
-          },
-          {
-            id: '#00001',
-            name: '第一个活动',
-            date: '2020-01-20'
-          },
-          {
-            id: '#00001',
-            name: '第一个活动',
-            date: '2020-01-20'
-          },
-          {
-            id: '#00001',
-            name: '第一个活动',
-            date: '2020-01-20'
-          },
-          {
-            id: '#00001',
-            name: '第一个活动',
-            date: '2020-01-20'
-          },
-          {
-            id: '#00001',
-            name: '第一个活动',
-            date: '2020-01-20'
-          },
-          {
-            id: '#00001',
-            name: '第一个活动',
-            date: '2020-01-20'
-          },
-          {
-            id: '#00001',
-            name: '第一个活动',
-            date: '2020-01-20'
-          },
-          {
-            id: '#00001',
-            name: '第一个活动',
-            date: '2020-01-20'
-          },
-          {
-            id: '#00001',
-            name: '第一个活动',
-            date: '2020-01-20'
-          },
-          {
-            id: '#00001',
-            name: '第一个活动',
-            date: '2020-01-20'
-          },
-          {
-            id: '#00001',
-            name: '第一个活动',
-            date: '2020-01-20'
-          },
-          {
-            id: '#00001',
-            name: '第一个活动',
-            date: '2020-01-20'
-          },
-        ]
+        loadings: true,
+        tableLength: 100,
+        tableData: []
       }
     }
   }
