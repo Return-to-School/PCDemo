@@ -75,12 +75,13 @@
                 class: 'success',
                 message: '登录成功！'
               });
-              this.$router.push({path: '/dashboard'});
-            }else{
+              //return redirect('/dashboard');
+              window.location.href = "/dashboard";
+            } else {
               $('body').toast({
-                  class: 'error',
-                  message: '登录失败，原因：'+response.msg
-                });
+                class: 'error',
+                message: '登录失败，原因：' + response.msg
+              });
             }
           },
           onFailure: function (response, element, xhr) {
@@ -88,7 +89,7 @@
             if (!response.success) {
               $('body').toast({
                 class: 'error',
-                message: '登录失败，原因：'+response.msg
+                message: '登录失败，原因：' + response.msg
               });
             }
           },

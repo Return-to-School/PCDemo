@@ -45,20 +45,20 @@
             <el-form :model="ruleForm" :rules="rules" ref="ruleForm" label-width="140px" label-position="right">
               <el-divider>活动基本信息</el-divider>
               <el-form-item label="活动名称" prop="name">
-                <el-input v-model="ruleForm.name" :placeholder="updateForm.name">
-                  23333
+                <el-input v-model="ruleForm.name" placeholder="请输入" id="name">
                 </el-input>
               </el-form-item>
               <el-form-item label="活动创建者" prop="name">
-                <el-input v-model="ruleForm.creator" :placeholder="updateForm.creator">
+                <el-input v-model="ruleForm.creator" placeholder="请输入" id="creator">
                 </el-input>
               </el-form-item>
               <el-form-item label="活动区域" prop="location">
                 <div class="block">
                   <el-cascader v-model="ruleForm.location" :options="options" :props="{ emitPath:false }"
-                               separator="-" :placeholder="updateForm.location"
+                               separator="-" :placeholder="ruleForm.location"
                                clearable :key="changeOptions" ref="locations"
-                               @change="handleChange" @visible-change="openCascader" @expand-change="changeExpand">
+                               @change="handleChange" @visible-change="openCascader" @expand-change="changeExpand"
+                               id="location">
                   </el-cascader>
                 </div>
               </el-form-item>
@@ -92,7 +92,7 @@
                 </el-upload>
               </el-form-item>
               <el-form-item label="活动介绍" prop="desc">
-                <el-input type="textarea" v-model="ruleForm.desc" :placeholder="updateForm.desc"></el-input>
+                <el-input type="textarea" v-model="ruleForm.desc" placeholder="请输入" id="desc"></el-input>
               </el-form-item>
               <el-form-item label="是否需要审核" prop="verify">
                 <el-switch v-model="ruleForm.verify" active-color="#13ce66" inactive-color="#ff4949"></el-switch>
@@ -139,7 +139,7 @@
         console.log(store.getItem('user'));
         this.$refs[formName].validate((valid) => {
           if (valid) {
-            if(this.ruleForm.feedbackTime[0]<=this.ruleForm.applyTime[1]){
+            if (this.ruleForm.feedbackTime[0] <= this.ruleForm.applyTime[1]) {
               //如果反馈开始时间早于申请结束时间
               this.$message.error('反馈开始时间必须晚于申请结束时间!');
               return;
@@ -179,7 +179,7 @@
                   }
                   this.$message.success('提交成功！');
                 } else {
-                  this.$message.error('提交失败，失败原因：'+res.data.msg);
+                  this.$message.error('提交失败，失败原因：' + res.data.msg);
                 }
               }).catch((e) => {
                 this.$message.error('提交失败，请尝试刷新页面或联系网站维护人员处理！');
@@ -196,26 +196,26 @@
                 feedbackEndTime: this.ruleForm.feedbackTime[1],
                 needExamine: this.ruleForm.verify,
                 location: this.finalResult,
-                id: this.$route.query.sign
+                activityId: this.$route.query.sign
               };
               myaxios.put(url, data_l).then((res) => {
                 if (res.data.success) {
                   $('.input-box').html(
                     "<h2 class=\"subtitle\" style='text-align: center;color:green'>\n" +
                     "            <i class=\"el-icon-circle-check\"></i>\n" +
-                    "            提交成功！\n" +
+                    "            修改成功！\n" +
                     "          </h2>");
-                  this.$message.success('提交成功！');
+                  this.$message.success('修改成功！');
                   this.uploadUrl = "http://101.37.173.57:8080/activity/file/" + this.$route.query.sign;
                   let _this = this;
                   setTimeout(function () {
                     _this.$refs.uploads.submit();
                   }, 400);
                 } else {
-                  this.$message.error('提交失败，请重新尝试！');
+                  this.$message.error('修改失败，请重新尝试！');
                 }
               }).catch((e) => {
-                this.$message.error('提交失败，请尝试刷新页面或联系网站维护人员处理！');
+                this.$message.error('修改失败，请尝试刷新页面或联系网站维护人员处理！');
               });
             }
           } else {
@@ -324,13 +324,13 @@
           if (store.getItem('update_' + id) != null) {
             //判断当前修改操作合法性
             const data = JSON.parse(store.getItem('update_' + id));
-            this.updateForm.name = data.name;
-            this.updateForm.desc = data.content;
-            this.updateForm.creator = data.creator;
-            //this.ruleForm.applyTime = [new Date(data.applyStartTime), new Date(data.applyEndTime)];
-            //this.ruleForm.feedbackTime = [new Date(data.feedbackStartTime), new Date(data.feedbackEndTime)];
-            this.updateForm.verify = data.needExamine;
-            this.updateForm.location = data.location;
+            this.ruleForm.name = data.name;
+            this.ruleForm.desc = data.content;
+            this.ruleForm.creator = data.creator;
+            this.ruleForm.applyTime = [data.applyStartTime, data.applyEndTime];
+            this.ruleForm.feedbackTime = [data.feedbackStartTime, data.feedbackEndTime];
+            this.ruleForm.verify = data.needExamine;
+            this.ruleForm.location = data.location;
             this.newForm = false;//更改表单属性为修改模式
           } else {
             alert("很抱歉，您的提交参数有误，请重新操作进入本页面！");
