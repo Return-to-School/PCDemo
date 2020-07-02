@@ -1,36 +1,27 @@
 <template>
-  <div class="full">
-    <el-row type="flex" justify="center" align="middle">
-      <el-col :span="7">
+  <div>
+    <el-row :gutter="20" justify="center" align="bottom">
+      <el-col :span="6" :offset="9">
         <div class="grid-content">
-          <div class="ui container">
-            <div class="box"></div>
-            <div>
-              <div class="ui center aligned segments msg">
-                <div class="ui teal inverted raised segment" style="color:white;text-align: center">
-                  <h4><i class="ui user icon"></i>管理员登入</h4>
-                </div>
-                <div class="ui centered raised very padded segment">
-                  <form class="ui form">
-                    <div class="field">
-                      <div class="ui left icon input">
-                        <input type="text" name="account" placeholder="用户名" id="account">
-                        <i class="ui user icon"></i>
-                      </div>
-                    </div>
-                    <div class="field">
-                      <div class="ui left icon input">
-                        <input type="password" name="password" placeholder="密码" id="password">
-                        <i class="ui keyboard icon"></i>
-                      </div>
-                    </div>
-                    <br>
-                    <div class="ui teal fluid submit button" @click="onSubmit">登入</div>
-                  </form>
-                </div>
-              </div>
+          <el-card shadow="hover" v-loading="loadings">
+            <div slot="header" class="clearfix" style="align-content: center">
+              <span><strong>管理端登入</strong></span>
             </div>
-          </div>
+            <el-form :model="ruleForm" :rules="rules" ref="ruleForm" label-width="70px" label-position="right">
+              <el-form-item label="用户名" prop="username">
+                <el-input v-model="ruleForm.username" placeholder="请输入" id="username">
+                </el-input>
+              </el-form-item>
+              <el-form-item label="密码" prop="pwd">
+                <el-input v-model="ruleForm.pwd" placeholder="请输入" id="pwd" show-password>
+                </el-input>
+              </el-form-item>
+              <div class="box"></div>
+              <div style="align-content: center">
+                <el-button type="primary" style="width: 100%;" @click="submitForm('ruleForm')">登入</el-button>
+              </div>
+            </el-form>
+          </el-card>
         </div>
       </el-col>
     </el-row>
@@ -38,67 +29,45 @@
 </template>
 
 <script>
+  import axios from "axios";
+
+  const myaxios = axios.create({
+    baseURL: "http://101.37.173.57:8080/",
+    timeout: 5000,
+    withCredentials: true,
+    headers: {
+      //传入头数据
+    }
+  });
+
   export default {
+    name: "login",
     methods: {
-      onSubmit() {
-        $.fn.api.settings.api = {
-          'login': 'http://101.37.173.57:8080/user/verification'
-        };
-        $('.ui.form').api({
-          action: 'login',
-          method: 'POST',
-          on: 'now',
-          beforeXHR: function (xhr) {
-            xhr.setRequestHeader('content-type', 'application/json');
-            return xhr;
-          },
-          data: JSON.stringify({
-            "userId": $("#account").val(),
-            "password": $("#password").val()
-          }),
-          //serializeForm: true,
-          dataType: 'json',
-          beforeSent: function (settings) {
-            $('.ui.button').addClass("elastic loading");
-            console.log(settings.data);
-            return settings;
-          },
-          onSuccess: function (response, element, xhr) {
-            $('.ui.button').removeClass("elastic loading");
-            if (response.success) {
-              //登录成功
-              const store = window.sessionStorage;
-              store.clear();//清空所有之前的数据
-              console.log(response.UserId);
-              store.setItem('user', response.UserId);
-              $('body').toast({
-                class: 'success',
-                message: '登录成功！'
-              });
-              //return redirect('/dashboard');
-              window.location.href = "/dashboard";
-            } else {
-              $('body').toast({
-                class: 'error',
-                message: '登录失败，原因：' + response.msg
-              });
+      submitForm(form) {
+        this.$refs[form].validate((valid) => {
+          if (valid) {
+            this.loadings = true;
+            let data = {
+              userId: this.ruleForm.username,
+              password: this.ruleForm.pwd,
             }
-          },
-          onFailure: function (response, element, xhr) {
-            $('.ui.button').removeClass("elastic loading");
-            if (!response.success) {
-              $('body').toast({
-                class: 'error',
-                message: '登录失败，原因：' + response.msg
-              });
-            }
-          },
-          onError: function (response, element, xhr) {
-            $('.ui.button').removeClass("elastic loading");
-            $('body').toast({
-              class: 'error',
-              message: '服务器请求错误！'
-            });
+            myaxios.post('/user/verification', data).then((res) => {
+              if (res.data.success) {
+                //登入成功
+                const store = window.sessionStorage;
+                store.clear();//清空所有之前的数据
+                store.setItem('user', this.ruleForm.username);
+                this.$message.success('登入成功！');
+                this.$router.push({path: '/dashboard'});
+              } else {
+                this.$message.error('登入失败！原因：' + res.data.msg + '。');
+                this.loadings = false;
+              }
+            }).catch((err) => {
+              this.$message.error('登入失败！服务器响应错误，请重试！');
+              console.log(err);
+              this.loadings = false;
+            })
           }
         });
       }
@@ -106,31 +75,46 @@
     head() {
       return {
         script: [
-          {src: 'https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js'},
-          {src: 'https://cdn.jsdelivr.net/npm/fomantic-ui@2.8.2/dist/semantic.min.js'}
+          {src: 'https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js'}
         ],
-        link: [
-          {
-            rel: 'stylesheet',
-            type: 'text/css',
-            href: 'https://cdn.jsdelivr.net/npm/fomantic-ui@2.8.2/dist/semantic.min.css'
-          }
-        ],
-        title: '管理端登入'
+        style: [],
+        title: '仪表盘'
       }
+    },
+    directives: {
+      trigger: {
+        inserted(el, b) {
+          el.click();
+        }
+      }
+    },
+    data() {
+      return {
+        loadings: false,
+        ruleForm: {
+          username: '',
+          pwd: '',
+        },
+        rules: {
+          username: [
+            {required: true, message: '用户名不能为空！', trigger: 'blur'},
+          ],
+          pwd: [
+            {required: true, message: '密码不能为空！', trigger: 'blur'},
+          ],
+        }
+      };
     },
   }
 </script>
 
 <style scoped>
-  * {
-    margin: 0;
-    padding: 0;
+  .grid-content {
+    margin-top: 40%;
+    min-height: 36px;
   }
 
-  .grid-content {
-    background-color: #f9f9ff;
-    border-radius: 4px;
-    margin-top: 30%;
+  .box {
+    height: 10px;
   }
 </style>

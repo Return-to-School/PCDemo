@@ -20,9 +20,6 @@
             <el-collapse-item title="创建账号" name="1">
               <div>您可以在此页面创建一个新的区域管理员账号，区域管理员账号仅能对其所属区域内的活动进行操作。</div>
             </el-collapse-item>
-            <el-collapse-item title="修改账号" name="2">
-              <div>您可以通过选择列表中的任何一个账号进行信息修改。</div>
-            </el-collapse-item>
           </el-collapse>
         </el-card>
       </el-col>
@@ -68,38 +65,22 @@
               </el-table-column>
               <el-table-column prop="loc" label="管理区域">
               </el-table-column>
-              <el-table-column label="操作">
+              <!--<el-table-column label="操作">
                 <template slot-scope="scope">
                   <el-button @click="openPwdDlg(scope.row)" type="text" size="small">修改</el-button>
                 </template>
-              </el-table-column>
+              </el-table-column>-->
             </el-table>
             <div style="margin-top:20px">
               <el-pagination background layout="total, prev, pager, next" :total="tableLength"
                              @current-change="handleCurrentChange">
               </el-pagination>
             </div>
-            <el-dialog title="修改密码" :visible.sync="updatePwdDlg">
-              <el-form :model="ruleForm" :rules="rules" ref="ruleForm" label-width="100px" label-position="right">
-                <el-form-item label="旧密码" prop="oldPwd">
-                  <el-input v-model="ruleForm.oldPwd" show-password>
-                  </el-input>
-                </el-form-item>
-                <el-form-item label="新密码" prop="newPwd">
-                  <el-input v-model="ruleForm.newPwd" show-password>
-                  </el-input>
-                </el-form-item>
-              </el-form>
-              <div slot="footer" class="dialog-footer">
-                <el-button type="primary" @click="updatePwd('ruleForm')">修改</el-button>
-                <el-button type="danger" @click="resetForm('ruleForm')">重置</el-button>
-              </div>
-            </el-dialog>
           </el-tab-pane>
         </el-tabs>
       </el-col>
     </el-row>
-    <el-button v-trigger @click="handleCurrentChange(1)">
+    <el-button v-trigger @click="handleCurrentChange(1)" style="visibility: hidden;">
     </el-button>
   </div>
 </template>
@@ -110,38 +91,16 @@
   const myaxios = axios.create({
     timeout: 3000,
     baseURL: "http://101.37.173.57:8080/",
+    withCredentials: true,
   });
   export default {
     methods: {
       handleClick(row) {
-        console.log(row);
+        //console.log(row);
       },
       openPwdDlg(row) {
         this.updateId = row.userId;
         this.updatePwdDlg = true;
-      },
-      updatePwd(formName) {
-        //修改密码
-        this.$refs[formName].validate((valid) => {
-          if (valid) {
-            myaxios.post('/user/' + this.updateId + '/revision/pwd?pwdNew=' + this.ruleForm.newPwd, {
-              userId: this.updateId,
-              password: this.ruleForm.oldPwd
-            }).then((res) => {
-              if (res.data.success) {
-                this.$message.success('修改成功！');
-              } else {
-                this.$message.error('修改失败！原因：' + res.data.msg);
-              }
-              this.updatePwdDlg = false;
-            }).catch((e) => {
-              this.$message.error('服务错误！错误原因:' + e);
-            });
-          } else {
-            this.$message.error('您填写的表单有误，请再次检查后提交！');
-            return false;
-          }
-        });
       },
       handleCurrentChange(val) {
         this.loadings = true;
@@ -168,12 +127,9 @@
           }
         });
       },
-      resetForm(formName) {
-        this.$refs[formName].resetFields();
-      },
       handleChange(val) {
         //处理地区选择栏的选择
-        console.log(val);
+        //console.log(val);
       },
       openCascader(status) {
         if (status && !this.p) {//当前操作为打开下拉菜单(只渲染一次！！！！)

@@ -13,7 +13,28 @@
         仪表盘
       </el-menu-item>
       <el-menu-item index="4">账号管理</el-menu-item>
+      <el-submenu index="6">
+        <template slot="title">{{ userName }}</template>
+        <el-menu-item index="6-1">修改密码</el-menu-item>
+        <el-menu-item index="6-2">登出</el-menu-item>
+      </el-submenu>
     </el-menu>
+    <el-dialog title="修改密码" :visible.sync="updatePwdDlg">
+      <el-form :model="ruleForm" :rules="rules" ref="ruleForm" label-width="100px" label-position="right">
+        <el-form-item label="旧密码" prop="oldPwd">
+          <el-input v-model="ruleForm.oldPwd" show-password>
+          </el-input>
+        </el-form-item>
+        <el-form-item label="新密码" prop="newPwd">
+          <el-input v-model="ruleForm.newPwd" show-password>
+          </el-input>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button type="primary" @click="updatePwd('ruleForm')">修改</el-button>
+        <el-button type="danger" @click="resetForm('ruleForm')">重置</el-button>
+      </div>
+    </el-dialog>
     <el-row type="flex" class="row-bg" justify="center">
       <el-col :span="14">
         <div class="grid-content">
@@ -33,7 +54,7 @@
             <span><strong>功能</strong></span>
           </div>
           <el-menu @select="handleRedirect">
-            <el-menu-item index="1">
+            <el-menu-item index="3">
               <i class="el-icon-menu"></i>
               <span slot="title">活动列表</span>
             </el-menu-item>
@@ -41,7 +62,7 @@
               <i class="el-icon-menu"></i>
               <span slot="title">新增活动</span>
             </el-menu-item>
-            <el-menu-item index="3">
+            <el-menu-item index="5">
               <i class="el-icon-menu"></i>
               <span slot="title">人员导出</span>
             </el-menu-item>
@@ -72,24 +93,39 @@
       </el-col>
     </el-row>
     <el-divider></el-divider>
-    <el-button v-trigger @click="autoClick">
+    <el-button v-trigger @click="autoClick" style="visibility: hidden;">
     </el-button>
   </div>
 </template>
 
 <script>
+  import axios from "axios";
+
+  const myaxios = axios.create({
+    baseURL: "http://101.37.173.57:8080/",
+    timeout: 5000,
+    withCredentials: true,
+    headers: {
+      //传入头数据
+    }
+  });
+
   export default {
     methods: {
       handleClick(row) {
-        console.log(row);
+        //console.log(row);
       },
       handleRedirect(index, path) {
-        if (index == 1) this.$router.push({path: '/list?url=dashboard'});
+        if (index == 1) this.$router.push({path: '/dashboard'});
         else if (index == 2) this.$router.push({path: '/new?url=dashboard&action=new&sign='});
+        else if (index == 3) this.$router.push({path: '/list?url=dashboard'});
         else if (index == 4) this.$router.push({path: '/manage?url=dashboard'});
+        else if (index == '6-1') this.updatePwdDlg = true;
         else this.$router.push({path: '/print'});
       },
       autoClick() {
+        const store = window.sessionStorage;
+        this.userName = store.getItem('user');
         let timeNow = new Date();
         let hours = timeNow.getHours();
         let text = '';
@@ -103,7 +139,35 @@
           text = '晚上好，';
         }
         $('.f').text(text);
-      }
+      },
+      resetForm(formName) {
+        this.$refs[formName].resetFields();
+      },
+      updatePwd(formName) {
+        //修改密码
+        const store = window.sessionStorage;
+        let updateId = store.getItem('user');
+        this.$refs[formName].validate((valid) => {
+          if (valid) {
+            myaxios.post('/user/' + updateId + '/revision/pwd?pwdNew=' + this.ruleForm.newPwd, {
+              userId: updateId,
+              password: this.ruleForm.oldPwd
+            }).then((res) => {
+              if (res.data.success) {
+                this.$message.success('修改成功！');
+              } else {
+                this.$message.error('修改失败！原因：' + res.data.msg);
+              }
+              this.updatePwdDlg = false;
+            }).catch((e) => {
+              this.$message.error('服务错误！错误原因:' + e);
+            });
+          } else {
+            this.$message.error('您填写的表单有误，请再次检查后提交！');
+            return false;
+          }
+        });
+      },
     },
     head() {
       return {
@@ -123,7 +187,22 @@
     },
     data() {
       return {
-        indexSwitch: '1'
+        userName: '加载中',
+        indexSwitch: '1',
+        updatePwdDlg: false,
+        ruleForm: {
+          newPwd: '',
+          oldPwd: ''
+        },
+        rules: {
+          newPwd: [
+            {required: true, message: '请输入密码', trigger: 'blur'},
+            {min: 6, max: 16, message: '长度在 6 到 16 个字符', trigger: 'blur'}
+          ],
+          oldPwd: [
+            {required: true, message: '请输入密码', trigger: 'blur'},
+          ]
+        }
       };
     },
   }

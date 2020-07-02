@@ -106,12 +106,13 @@
   const myaxios = axios.create({
     timeout: 3000,
     baseURL: "http://101.37.173.57:8080/",
+    withCredentials: true,
   });
 
   export default {
     methods: {
       handleClick(row) {
-        console.log(row);
+        //console.log(row);
       },
       goBack() {
         this.$router.push({path: '/dashboard'});
@@ -122,6 +123,7 @@
         let url = 'apply/search-for-group/' + userid + '?currPage=1&pageSize=10';
         axios({
           method: 'post',
+          withCredentials: true,
           url: 'http://101.37.173.57:8080/apply/export-for-group/' + userid,
           data: {
             studentName: this.form.studentName,
@@ -151,6 +153,7 @@
         let jsonRequest = JSON.stringify(data);
         axios({
           method: 'post',
+          withCredentials: true,
           url: 'http://101.37.173.57:8080/apply/search-for-group/' + userid + '?currPage=1&pageSize=10',
           data: jsonRequest,
           headers: {'Content-Type': 'application/json'},
@@ -175,6 +178,7 @@
         let jsonRequest = JSON.stringify(data);
         axios({
           method: 'post',
+          withCredentials: true,
           url: 'http://101.37.173.57:8080/apply/search-for-group/' + userid + '?currPage=' + pages + '&pageSize=10',
           data: jsonRequest,
           headers: {'Content-Type': 'application/json'},

@@ -32,12 +32,13 @@
             <div class="subtitle">
               <i class="el-icon-more"></i>
               活动详情
-              <div style="float:right">
+              <div style="float:right" v-if="!is_history">
                 <el-button-group>
                   <el-button type="primary" @click="updateActivity()">修改活动</el-button>
                   <el-button type="primary" @click="openStudentModal(1)">学生信息</el-button>
                   <el-button type="primary" @click="openApplyModal(1)">人员审核</el-button>
                   <el-button type="primary" @click="openCompleteModal(1)">反馈考评</el-button>
+                  <el-button type="danger" @click="deleteDialog=true">删除活动</el-button>
                 </el-button-group>
               </div>
             </div>
@@ -79,13 +80,13 @@
               <el-col :span="8">
                 <div class="grid-content">
                   考评开始时间：
-                  <el-tag type="success">{{applyStartTime}}</el-tag>
+                  <el-tag type="success">{{feedbackStartTime}}</el-tag>
                 </div>
               </el-col>
               <el-col :span="8">
                 <div class="grid-content">
                   考评结束时间：
-                  <el-tag type="success">{{applyEndTime}}</el-tag>
+                  <el-tag type="success">{{feedbackEndTime}}</el-tag>
                 </div>
               </el-col>
             </el-row>
@@ -109,7 +110,10 @@
             <div slot="header" class="clearfix">
               <span><strong>活动描述</strong></span>
             </div>
-            <p>{{describe}}</p>
+            <div class="ql-editor" id="desc">
+
+            </div>
+
           </el-card>
           <div class="box"></div>
           <el-dialog title="人员审核" :visible.sync="apply">
@@ -121,19 +125,19 @@
                 <el-col :span="6">
                   <div class="grid-content">
                     总报名人数：
-                    <el-tag type="info">未配置</el-tag>
+                    <el-tag type="info">{{totalCnt}}</el-tag>
                   </div>
                 </el-col>
                 <el-col :span="6">
                   <div class="grid-content">
                     通过人数：
-                    <el-tag type="success">未配置</el-tag>
+                    <el-tag type="success">{{passCnt}}</el-tag>
                   </div>
                 </el-col>
                 <el-col :span="6">
                   <div class="grid-content">
                     未处理人数：
-                    <el-tag type="warning">未配置</el-tag>
+                    <el-tag type="warning">{{unpassCnt}}</el-tag>
                   </div>
                 </el-col>
               </el-row>
@@ -182,11 +186,13 @@
               </el-table-column>
               <el-table-column prop="student.gender.desc" label="性别">
               </el-table-column>
-              <el-table-column prop="studentId" label="学号">
+              <el-table-column prop="student.studentId" label="学号">
               </el-table-column>
               <el-table-column prop="student.highSchool" label="回访高中">
               </el-table-column>
               <el-table-column prop="student.college" label="专业">
+              </el-table-column>
+              <el-table-column prop="feedback.level.desc" label="审核状态">
               </el-table-column>
               <el-table-column label="操作">
                 <template slot-scope="scope">
@@ -224,21 +230,33 @@
               <el-button type="primary" @click="expStudents()">导出所有学生信息</el-button>
             </div>
           </el-dialog>
+          <el-dialog title="确认操作" :visible.sync="deleteDialog">
+            您确认要删除该活动吗？您一旦点击确认按钮，将无法恢复本活动数据！
+            <div slot="footer" class="dialog-footer">
+              <el-button type="primary" @click="deleteDialog=false">取消操作</el-button>
+              <el-button type="danger" @click="deleteActivity()">确认删除</el-button>
+            </div>
+          </el-dialog>
         </div>
 
       </el-col>
     </el-row>
-    <el-button v-trigger @click="autoClick">
+    <el-button v-trigger @click="autoClick" style="visibility: hidden;">
     </el-button>
   </div>
 </template>
 
 <script>
   import axios from 'axios';
+  import 'quill/dist/quill.core.css'
+  import 'quill/dist/quill.snow.css'
+  import 'quill/dist/quill.bubble.css'
+  import '../assets/quillFont.css'
 
   const myaxios = axios.create({
     baseURL: "http://101.37.173.57:8080/",
     timeout: 5000,
+    withCredentials: true,
     headers: {
       //传入头数据
     }
@@ -255,9 +273,13 @@
           alert("很抱歉，您的提交参数有误，请重新操作进入本页面！");
           this.$router.push({path: '/list?url=dashboard'}); //直接将页面退出
         } else {
+          if (store.getItem('is_history_' + id) == '1') {
+            this.is_history = true;//标记历史活动
+          }
           const lstData = JSON.parse(store.getItem('list_' + id));
+          $('#desc').html(lstData.content);//防止富文本读取失败，直接html注入，不过滤
           this.name = lstData.name;
-          this.describe = lstData.content;
+          this.feedbackUrl = lstData.filePath;//反馈文件根目录
           this.applyStartTime = lstData.applyStartTime;
           this.applyEndTime = lstData.applyEndTime;
           this.feedbackStartTime = lstData.feedbackStartTime;
@@ -273,10 +295,15 @@
       },
       handleClick(row) {
         //跳转学生详情页面
+        const id = this.$route.query.id;
         const store = window.sessionStorage;//设置session缓存
-        store.setItem('feedback_' + row.applyId, JSON.stringify(row));//将用户指定的list对象放入session并保持最新
-        this.$router.push({path: '/rate?id=' + row.applyId});
         console.log(row);
+        store.setItem('profile_' + row.student.studentId, JSON.stringify(row));
+        if (row.feedback != null) {
+          //如果存在反馈则预加载反馈文件路径，先存进session
+          //store.setItem('feedbackUrl_' + row.feedback.feedbackId, this.feedback.filePath);//设置反馈文件根目录
+        }
+        this.$router.push({path: '/rate?id=' + row.student.studentId + '&feedbackId=' + row.feedback.feedbackId + '&back=' + id});
       },
       goBack() {
         this.$router.push({path: '/list?url=dashboard'});
@@ -299,12 +326,23 @@
         return true;
       },
       openApplyModal(pages) {
+        //申请名单弹框
         //先进行数据注入，再显示对话框
         //复用方法，根据pages的不同完成数据初始化、分页加载
         //this.apply = true;//加载对话框
         const id = this.$route.query.id;//查询url嵌入的list对象id
+        myaxios.get('/activity/' + id + '/statics').then((res) => {
+          //console.log(res.data);
+          let d = res.data;
+          this.totalCnt = d.data.total;
+          this.passCnt = d.data.passed;
+          this.unpassCnt = d.data.unprocessed;
+        }).catch((e) => {
+          //加载错误中断请求
+          this.$message.error('请求数据失败！请刷新页面重试');
+        });
         myaxios.get('/student/student-in-act/' + id + '?currPage=' + pages + '&pageSize=10').then((res) => {
-          console.log(res.data);
+          //console.log(res.data);
           this.applyTableLength = res.data.data.totalCount;//加载数据总条数，重复加载以应对并发操作
           this.applyData = res.data.data.result;//注入表格数据
           this.apply = true;//加载对话框
@@ -332,6 +370,7 @@
         });
       },
       openCompleteModal(pages) {
+        //加载反馈名单弹框
         const id = this.$route.query.id;//查询url嵌入的list对象id
         myaxios.get('/activity/' + id + '/apply-pass?currPage=' + pages + '&pageSize=10').then((res) => {
           this.feedbackTableLength = res.data.totalCount;//加载数据总条数，重复加载以应对并发操作
@@ -348,9 +387,10 @@
         const store = window.sessionStorage;
         const id = this.$route.query.id;//查询url嵌入的list对象id
         axios({
-          method:'post',
-          url:'http://101.37.173.57:8080/apply/export-for-group/'+ store.getItem('user'),
-          data:{
+          method: 'post',
+          withCredentials: true,
+          url: 'http://101.37.173.57:8080/apply/export-for-group/' + store.getItem('user'),
+          data: {
             activityId: id
           },
           responseType: 'blob'
@@ -377,6 +417,7 @@
         const jsonRequest = JSON.stringify(request);
         axios({
           method: 'post',
+          withCredentials: true,
           url: 'http://101.37.173.57:8080/apply/examination/' + status,
           data: jsonRequest,
           headers: {'Content-Type': 'application/json'}
@@ -389,8 +430,21 @@
           this.$message.error('操作提交失败！请刷新页面重试');
         });
       },
+      deleteActivity() {
+        const id = this.$route.query.id;//查询url嵌入的list对象id
+        myaxios.delete("activity/" + id).then((res) => {
+          if (res.data.success) {
+            this.$message.success('删除成功！');
+            this.$router.push({path: '/list?url=dashboard'});
+          } else {
+            this.$message.error('删除失败！');
+          }
+        }).catch((e) => {
+          this.$message.error('删除失败！服务器响应错误，请刷新页面重试。');
+        });
+      },
       download(data) {
-        let url = window.URL.createObjectURL(new Blob([data],{type:"application/vnd.ms-excel;charset=utf-8"}));
+        let url = window.URL.createObjectURL(new Blob([data], {type: "application/vnd.ms-excel;charset=utf-8"}));
         let link = document.createElement('a');
         link.style.display = 'none';
         link.href = url;
@@ -428,13 +482,21 @@
         apply: false,
         complete: false,
         students: false,
+        is_history: false,
+        deleteDialog: false,
         name: '等待处理',
         creator: '等待处理',
+        feedbackUrl: '',
         describe: '等待处理',
         applyStartTime: '等待处理',
         applyEndTime: '等待处理',
+        feedbackStartTime: '等待处理',
+        feedbackEndTime: '等待处理',
         location: '等待处理',
         createTime: '等待处理',
+        totalCnt: '等待处理',
+        passCnt: '等待处理',
+        unpassCnt: '等待处理',
         applyTableLength: 0,//先默认有0行数据
         feedbackTableLength: 0,
         studentTableLength: 0,
